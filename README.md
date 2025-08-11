@@ -203,3 +203,36 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - [✅] Export functionality (PDF, CSV)
 - [ ] Team collaboration features
 - [ ] API rate limiting and caching
+
+
+flowchart TD
+  U[User (Browser)] -->|HTTP fetch| UI[Next.js 14 UI\n(Dashboard • Prompts • Insights)]
+  UI <-->|SSE progress| API[/Next.js API Routes/]
+
+  subgraph BE[Backend (TypeScript)]
+    API --> ORCH[Job Orchestrator / Worker]
+    API --> SVC[Insights Service]
+    ORCH --> SRCH[Search Service\n(Brave API)]
+    ORCH --> ANAL[Analysis Engine\n(OpenAI)]
+    SVC --> PRISMA
+    SRCH --> PRISMA
+    ANAL --> PRISMA
+  end
+
+  subgraph DATA[Data Layer]
+    PRISMA[Prisma ORM] <--> DB[(SQLite dev / Postgres prod)]
+  end
+
+  subgraph EXT[External APIs]
+    BRAVE[Brave Search API]
+    OPENAI[OpenAI API]
+  end
+
+  SRCH --> BRAVE
+  ANAL --> OPENAI
+
+  %% Optional infra
+  classDef opt stroke-dasharray: 5 5;
+  REDIS[[Redis Cache (opt)]]:::opt
+  ORCH -. cache/lookups .-> REDIS
+  API -. cache reads .-> REDIS
