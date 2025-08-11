@@ -31,7 +31,7 @@ export function BrandConfigurationCard() {
           </label>
           <input
             type="text"
-            className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black"
             placeholder="e.g., HubSpot"
             value={brandName}
             onChange={(e) => setBrandName(e.target.value)}
@@ -47,7 +47,7 @@ export function BrandConfigurationCard() {
               <div key={index} className="flex items-center gap-2">
                 <input
                   type="text"
-                  className="flex-1 px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="flex-1 px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black"
                   value={alias}
                   onChange={(e) => {
                     const newAliases = [...aliases]
@@ -82,7 +82,7 @@ export function BrandConfigurationCard() {
             Industry Category
           </label>
           <select
-            className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black"
             value={industry}
             onChange={(e) => setIndustry(e.target.value)}
           >
@@ -102,7 +102,7 @@ export function BrandConfigurationCard() {
             Target Market
           </label>
           <select
-            className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black"
             value={targetMarket}
             onChange={(e) => setTargetMarket(e.target.value)}
           >

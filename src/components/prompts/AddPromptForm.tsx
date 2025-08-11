@@ -40,7 +40,7 @@ export function AddPromptForm({ onSubmit }: AddPromptFormProps) {
           </label>
           <textarea 
             id="prompt"
-            className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+            className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none text-black"
             rows={4}
             placeholder="e.g., What are the best CRM tools for small businesses?"
             value={prompt}
@@ -59,7 +59,7 @@ export function AddPromptForm({ onSubmit }: AddPromptFormProps) {
           <input 
             id="category"
             type="text"
-            className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black"
             placeholder="e.g., CRM, Authentication, Marketing"
             value={category}
             onChange={(e) => setCategory(e.target.value)}
@@ -78,4 +78,4 @@ export function AddPromptForm({ onSubmit }: AddPromptFormProps) {
       </form>
     </Card>
   )
-} 
+}
