@@ -9,10 +9,12 @@ import { Button } from '@/components/ui/Button'
 import { DashboardMetrics } from '@/types'
 import { Plus, Download } from 'lucide-react'
 import Link from 'next/link'
+import { exportData, ExportFormat } from '@/lib/export'
 
 export default function DashboardPage() {
   const [metrics, setMetrics] = useState<DashboardMetrics | null>(null)
   const [loading, setLoading] = useState(true)
+  const [exporting, setExporting] = useState(false)
 
   useEffect(() => {
     fetchDashboardData()
@@ -30,6 +32,36 @@ export default function DashboardPage() {
       console.error('Error fetching dashboard data:', error)
     } finally {
       setLoading(false)
+    }
+  }
+
+  const handleExport = async (format: ExportFormat = 'csv') => {
+    setExporting(true)
+    try {
+      const response = await fetch('/api/export', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ format }),
+      })
+
+      if (!response.ok) {
+        throw new Error('Export failed')
+      }
+
+      const result = await response.json()
+      
+      if (result.success) {
+        await exportData(format, result.data)
+      } else {
+        throw new Error(result.error || 'Export failed')
+      }
+    } catch (error) {
+      console.error('Export error:', error)
+      alert('Failed to export data. Please try again.')
+    } finally {
+      setExporting(false)
     }
   }
 
@@ -73,7 +105,12 @@ export default function DashboardPage() {
           <p className="text-gray-600 mt-1">Track your brand visibility in AI responses</p>
         </div>
         <div className="flex space-x-3">
-          <Button variant="outline" size="sm">
+          <Button 
+            variant="outline" 
+            size="sm"
+            onClick={() => handleExport('csv')}
+            loading={exporting}
+          >
             <Download className="w-4 h-4 mr-2" />
             Export Report
           </Button>
@@ -139,17 +176,23 @@ export default function DashboardPage() {
             </Card>
           </Link>
           
-          <Card className="p-4 hover:shadow-md transition-shadow cursor-pointer">
-            <div className="flex items-center">
-              <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center mr-3">
-                <Download className="w-5 h-5 text-orange-600" />
+          <button 
+            className="w-full text-left"
+            onClick={() => handleExport('csv')}
+            disabled={exporting}
+          >
+            <Card className="p-4 hover:shadow-md transition-shadow cursor-pointer">
+              <div className="flex items-center">
+                <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center mr-3">
+                  <Download className="w-5 h-5 text-orange-600" />
+                </div>
+                <div>
+                  <h4 className="font-medium text-gray-900">Export Data</h4>
+                  <p className="text-sm text-gray-500">Download reports and analytics</p>
+                </div>
               </div>
-              <div>
-                <h4 className="font-medium text-gray-900">Export Data</h4>
-                <p className="text-sm text-gray-500">Download reports and analytics</p>
-              </div>
-            </div>
-          </Card>
+            </Card>
+          </button>
         </div>
       </Card>
     </div>

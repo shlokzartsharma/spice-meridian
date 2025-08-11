@@ -196,8 +196,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 🎯 Roadmap
 
-- [ ] Real Brave Search API integration
-- [ ] OpenAI API integration for analysis
+- [✅] Real Brave Search API integration
+- [✅] OpenAI API integration for analysis
 - [ ] Email notifications for new mentions
 - [ ] Advanced filtering and search
 - [ ] Export functionality (PDF, CSV)

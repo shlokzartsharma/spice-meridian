@@ -6,9 +6,10 @@ import { Badge } from '@/components/ui/Badge'
 import { Button } from '@/components/ui/Button'
 import { formatDate, formatPercentage } from '@/lib/utils'
 import { Prompt, Analysis, SearchResult, BrandMention } from '@/types'
-import { ArrowLeft, ExternalLink, TrendingUp, Eye, BarChart3 } from 'lucide-react'
+import { ArrowLeft, ExternalLink, TrendingUp, Eye, BarChart3, Download } from 'lucide-react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
+import { exportData, ExportFormat } from '@/lib/export'
 
 export default function InsightsPage() {
   const [prompt, setPrompt] = useState<Prompt | null>(null)
@@ -16,6 +17,7 @@ export default function InsightsPage() {
   const [searchResults, setSearchResults] = useState<SearchResult[]>([])
   const [allPrompts, setAllPrompts] = useState<Prompt[]>([])
   const [loading, setLoading] = useState(true)
+  const [exporting, setExporting] = useState(false)
   const router = useRouter()
   const searchParams = useSearchParams()
   const promptId = searchParams.get('promptId')
@@ -57,6 +59,36 @@ export default function InsightsPage() {
       console.error('Error fetching prompts:', error)
     } finally {
       setLoading(false)
+    }
+  }
+
+  const handleExport = async (format: ExportFormat = 'csv') => {
+    setExporting(true)
+    try {
+      const response = await fetch('/api/export', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ format }),
+      })
+
+      if (!response.ok) {
+        throw new Error('Export failed')
+      }
+
+      const result = await response.json()
+      
+      if (result.success) {
+        await exportData(format, result.data)
+      } else {
+        throw new Error(result.error || 'Export failed')
+      }
+    } catch (error) {
+      console.error('Export error:', error)
+      alert('Failed to export data. Please try again.')
+    } finally {
+      setExporting(false)
     }
   }
 
@@ -105,12 +137,22 @@ export default function InsightsPage() {
             <h1 className="text-2xl font-bold text-gray-900">Insights Overview</h1>
             <p className="text-gray-600 mt-1">Summary of all your brand intelligence analyses</p>
           </div>
-          <Link href="/prompts">
-            <Button variant="outline" size="sm">
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to Prompts
+          <div className="flex items-center space-x-2">
+            <Button 
+              variant="outline" 
+              onClick={() => handleExport('csv')}
+              loading={exporting}
+            >
+              <Download className="w-4 h-4 mr-2" />
+              Export Data
             </Button>
-          </Link>
+            <Link href="/prompts">
+              <Button variant="outline" size="sm">
+                <ArrowLeft className="w-4 h-4 mr-2" />
+                Back to Prompts
+              </Button>
+            </Link>
+          </div>
         </div>
 
         {/* Summary Metrics */}
@@ -268,6 +310,15 @@ export default function InsightsPage() {
           </div>
         </div>
         <div className="flex items-center space-x-2">
+          <Button 
+            variant="outline" 
+            size="sm"
+            onClick={() => handleExport('csv')}
+            loading={exporting}
+          >
+            <Download className="w-4 h-4 mr-2" />
+            Export
+          </Button>
           <Badge variant={prompt.status === 'completed' ? 'success' : 'warning'}>
             {prompt.status}
           </Badge>
@@ -414,6 +465,15 @@ export default function InsightsPage() {
                   <h4 className="font-medium text-gray-900">{result.title}</h4>
                   <p className="text-sm text-gray-500">{result.source}</p>
                 </div>
+                <a 
+                  href={result.url} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-blue-600 hover:text-blue-800 text-sm flex items-center"
+                >
+                  <ExternalLink className="w-4 h-4 mr-1" />
+                  View
+                </a>
               </div>
               <p className="text-sm text-gray-700 line-clamp-3">
                 {result.content}

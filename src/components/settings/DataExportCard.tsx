@@ -4,18 +4,44 @@ import { useState } from 'react'
 import { Card } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
 import { Download, Trash2, Database } from 'lucide-react'
+import { exportData, ExportFormat } from '@/lib/export'
 
 export function DataExportCard() {
   const [retentionPeriod, setRetentionPeriod] = useState('1year')
-  const [exportFormat, setExportFormat] = useState('csv')
+  const [exportFormat, setExportFormat] = useState<ExportFormat>('csv')
   const [autoBackup, setAutoBackup] = useState(false)
   const [exporting, setExporting] = useState(false)
 
   const handleExport = async () => {
     setExporting(true)
-    // Simulate export process
-    await new Promise(resolve => setTimeout(resolve, 2000))
-    setExporting(false)
+    try {
+      // Call the export API
+      const response = await fetch('/api/export', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ format: exportFormat }),
+      })
+
+      if (!response.ok) {
+        throw new Error('Export failed')
+      }
+
+      const result = await response.json()
+      
+      if (result.success) {
+        // Use the export library to generate and download the file
+        await exportData(exportFormat, result.data)
+      } else {
+        throw new Error(result.error || 'Export failed')
+      }
+    } catch (error) {
+      console.error('Export error:', error)
+      alert('Failed to export data. Please try again.')
+    } finally {
+      setExporting(false)
+    }
   }
 
   const handleClearData = () => {
@@ -35,7 +61,7 @@ export function DataExportCard() {
             Data Retention Period
           </label>
           <select
-            className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black"
+            className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             value={retentionPeriod}
             onChange={(e) => setRetentionPeriod(e.target.value)}
           >
@@ -55,9 +81,9 @@ export function DataExportCard() {
             Export Format
           </label>
           <select
-            className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black"
+            className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             value={exportFormat}
-            onChange={(e) => setExportFormat(e.target.value)}
+            onChange={(e) => setExportFormat(e.target.value as ExportFormat)}
           >
             <option value="csv">CSV</option>
             <option value="json">JSON</option>
@@ -107,7 +133,7 @@ export function DataExportCard() {
             loading={exporting}
           >
             <Download className="w-4 h-4 mr-2" />
-            Export All Data
+            Export All Data ({exportFormat.toUpperCase()})
           </Button>
           <Button 
             variant="outline" 
