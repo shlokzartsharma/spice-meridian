@@ -200,6 +200,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - [✅] OpenAI API integration for analysis
 - [ ] Email notifications for new mentions
 - [ ] Advanced filtering and search
-- [ ] Export functionality (PDF, CSV)
+- [✅] Export functionality (PDF, CSV)
 - [ ] Team collaboration features
 - [ ] API rate limiting and caching
