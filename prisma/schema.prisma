@@ -1,0 +1,72 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model Prompt {
+  id          String   @id @default(cuid())
+  text        String
+  category    String?
+  status      String   @default("pending") // pending, processing, completed, failed
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  searchResults SearchResult[]
+  analysis     Analysis?
+  
+  @@map("prompts")
+}
+
+model SearchResult {
+  id          String   @id @default(cuid())
+  promptId    String
+  url         String
+  title       String
+  content     String
+  source      String   // "chatgpt", "claude", "perplexity"
+  isAIGenerated Boolean @default(true)
+  createdAt   DateTime @default(now())
+  
+  prompt      Prompt @relation(fields: [promptId], references: [id], onDelete: Cascade)
+  mentions    BrandMention[]
+  
+  @@map("search_results")
+}
+
+model BrandMention {
+  id              String   @id @default(cuid())
+  searchResultId  String
+  brandName       String
+  mentionText     String
+  sentiment       String   // positive, negative, neutral
+  position        Int?     // 1st, 2nd, 3rd choice
+  features        Json?    // ["pricing", "ease of use"]
+  createdAt       DateTime @default(now())
+  
+  searchResult    SearchResult @relation(fields: [searchResultId], references: [id], onDelete: Cascade)
+  
+  @@map("brand_mentions")
+}
+
+model Analysis {
+  id                  String   @id @default(cuid())
+  promptId            String   @unique
+  totalResults        Int
+  brandsFound         Json     // ["HubSpot", "Salesforce", "Pipedrive"]
+  brandRankings       Json     // {HubSpot: {mentions: 8, avgPosition: 2.1, sentiment: 0.75}}
+  sentimentSummary    Json     // {positive: 65, neutral: 25, negative: 10}
+  keyInsights         String
+  visibilityScore     Float    // percentage of responses mentioning tracked brand
+  createdAt           DateTime @default(now())
+  
+  prompt              Prompt @relation(fields: [promptId], references: [id], onDelete: Cascade)
+  
+  @@map("analyses")
+}
