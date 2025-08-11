@@ -414,15 +414,6 @@ export default function InsightsPage() {
                   <h4 className="font-medium text-gray-900">{result.title}</h4>
                   <p className="text-sm text-gray-500">{result.source}</p>
                 </div>
-                <a 
-                  href={result.url} 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="text-blue-600 hover:text-blue-800 text-sm flex items-center"
-                >
-                  <ExternalLink className="w-4 h-4 mr-1" />
-                  View
-                </a>
               </div>
               <p className="text-sm text-gray-700 line-clamp-3">
                 {result.content}
